@@ -1,9 +1,8 @@
 <script>
-import { store } from '../../store/index'
 import CustomInput from '../CustomInput/CustomInput.vue'
 import PlusIcon from '../icons/PlusIcon.vue'
+import { mapMutations } from 'vuex'
 import ChildRow from '../ChildRow/ChildRow.vue'
-import {mapMutations} from "vuex";
 export default {
   components: {
     CustomInput,
@@ -12,7 +11,6 @@ export default {
   },
   data: function () {
     return {
-      arr: [],
       person: {
         name: '',
         age: null,
@@ -28,25 +26,19 @@ export default {
       addChild: 'addChild'
     }),
     add() {
-      let ind = this.arr.length
+      let index = this.person.childs.length
+      console.log(index)
       this.id = Date.now()
-      if (ind < 5) {
-        this.arr.push([
-          {
-            label: 'Имя',
-            name: `name`
-          },
-          {
-            label: 'Возраст',
-            name: `age`
-          }
-        ])
-        console.log(this.arr)
+      if (index < 5) {
+        this.person.childs.push({
+          id: Date.now(),
+          name: '',
+          age: ''
+        })
       }
     },
     onSubmit(e) {
       e.preventDefault()
-      console.log('onSubmit', this.person)
       this.$store.commit('setName', this.person.name)
       this.$store.commit('setAge', this.person.age)
       this.$store.commit('addChild', [...this.person.childs])
@@ -57,18 +49,16 @@ export default {
     onUpdateAge(val) {
       this.person.age = val.value
     },
-    onUpdateChilds(val) {
-      const isInList = this.person.childs.filter(item => item.id === val.id)
-      if (!isInList.length) {
-        this.person.childs.push(val)
-      } else {
-        isInList[0] = {...isInList[0], ...val};
-      }
+    onUpdateChildName(val) {
+      const isInList = this.person.childs.filter((item) => item.id === val.id)
+      isInList[0].name = val.value
     },
-    onDeleteChild(child) {
-      this.person.childs = this.person.childs.filter((el) => (
-          el.id !== child[0].id
-      ))
+    onUpdateChildAge(val) {
+      const isInList = this.person.childs.filter((item) => item.id === val.id)
+      isInList[0].age = val.value
+    },
+    onDeleteChild(id) {
+      this.person.childs = this.person.childs.filter((el) => el.id !== id)
     }
   }
 }
@@ -78,22 +68,23 @@ export default {
   <form class="form" @submit="onSubmit">
     <fieldset class="fieldset">
       <legend class="title">Персональные данные</legend>
-      <CustomInput label="Имя" name="name" @update-val="onUpdateName" />
+      <CustomInput label="Имя" name="name" @update-val="onUpdateName" value="" />
       <CustomInput label="Возраст" name="age" @update-val="onUpdateAge" />
     </fieldset>
     <fieldset class="fieldset">
       <div class="head">
         <legend class="title">Дети (макс. 5)</legend>
-        <div class="add" @click="add" v-if="arr.length < 5">
+        <button class="add" @click="add" v-if="person.childs.length < 5">
           <PlusIcon /><span>Добавить ребенка</span>
-        </div>
+        </button>
       </div>
       <ChildRow
-        v-for="item in arr"
-        :key="item.label"
-        :elems="item"
-        :id="id"
-        @update-childs="onUpdateChilds"
+        v-for="item in person.childs"
+        :key="item.id"
+        :id="item.id"
+        :name="item.name"
+        @on-update-child-name="onUpdateChildName"
+        @on-update-child-age="onUpdateChildAge"
         @delete-child="onDeleteChild"
       />
     </fieldset>
@@ -103,6 +94,7 @@ export default {
 
 <style scoped lang="scss">
 @import '../../assets/styles/vars.scss';
+@import '../../assets/styles/mixins.scss';
 .fieldset {
   border: none;
 }
@@ -133,6 +125,11 @@ legend {
   justify-content: space-between;
   align-items: center;
   margin: 0 0 $spacing-xs 0;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .save {

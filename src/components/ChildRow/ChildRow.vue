@@ -5,35 +5,21 @@ export default {
   components: {
     CustomInput
   },
-  data() {
-    return {
-      child: []
-    }
-  },
   props: {
-    elems: {
-      type: Object,
-    },
     id: {
-      type: Number,
+      type: Number
+    },
+    name: {
+      type: String
     }
   },
-  emits: ['updateChilds', 'deleteChild'],
+  emits: ['onUpdateChildName', 'onUpdateChildAge', 'deleteChild'],
   methods: {
-    onUpdateVal(val) {
-      const name = val['value']
-      const field = val['name']
-      let type = this.checkType(field)
-
-      const isInList = this.child.filter(item => item.id === this.id)
-      const res = { id: this.id, [type]: name }
-      if (!isInList.length) {
-        this.child.push(res)
-      } else {
-        isInList[0][type] = name
-      }
-      console.log('child',this.child)
-      this.$emit('updateChilds', res)
+    onUpdateChildName(val) {
+      this.$emit('onUpdateChildName', { ...val, id: this.id })
+    },
+    onUpdateChildAge(age) {
+      this.$emit('onUpdateChildAge', { ...age, id: this.id })
     },
     checkType(type) {
       if (type === 'name') {
@@ -42,9 +28,8 @@ export default {
         return 'age'
       }
     },
-    onDelete() {
-      console.log('delete', this.child)
-      this.$emit('deleteChild', this.child)
+    onDelete(id) {
+      this.$emit('deleteChild', id)
     }
   }
 }
@@ -52,14 +37,9 @@ export default {
 
 <template>
   <div class="row">
-    <CustomInput
-      v-for="elem in elems"
-      :key="elem.name"
-      :label="elem.label"
-      :name="elem.name"
-      @update-val="onUpdateVal"
-    />
-    <button class="delete" @click="onDelete">Удалить</button>
+    <CustomInput label="Имя" :name="name" @update-val="onUpdateChildName" />
+    <CustomInput label="Возраст" :name="name" @update-val="onUpdateChildAge" />
+    <button class="delete" @click="onDelete(id)">Удалить</button>
   </div>
 </template>
 <style lang="scss" scoped>

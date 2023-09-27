@@ -1,7 +1,9 @@
 <template>
   <div class="input">
     <input class="input__el" type="text" :name="name" :value="val" @change="onChange" />
-    <label :for="name" class="input__label">{{ label }}</label>
+    <label :for="name" class="input__label" :class="{ 'input__label--top': val.length }">{{
+      label
+    }}</label>
   </div>
 </template>
 
@@ -46,13 +48,26 @@ export default {
     padding: 26px 16px 6px;
     border: 1px solid $grey;
     border-radius: $radius;
+    outline: none;
+
+    &:focus,
+    &:active {
+      & + .input__label {
+        transform: translateY(-12px);
+      }
+    }
   }
 
   &__label {
     font: normal 400 13px / 100% Montserrat;
     position: absolute;
-    top: 8px;
+    top: 20px;
     left: 16px;
+    transition: transform 0.3s ease;
+
+    &--top {
+      transform: translateY(-12px);
+    }
   }
 }
 </style>
