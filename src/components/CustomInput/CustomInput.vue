@@ -28,7 +28,6 @@ export default {
     onChange(e) {
       const target = e.target
       this.val = target.value
-      console.log('target.name', target.name)
       this.$emit('updateVal', { value: this.val, name: target.name })
     }
   }

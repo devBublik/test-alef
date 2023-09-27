@@ -3,6 +3,7 @@ import { store } from '../../store/index'
 import CustomInput from '../CustomInput/CustomInput.vue'
 import PlusIcon from '../icons/PlusIcon.vue'
 import ChildRow from '../ChildRow/ChildRow.vue'
+import {mapMutations} from "vuex";
 export default {
   components: {
     CustomInput,
@@ -21,6 +22,11 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      setName: 'setName',
+      setAge: 'setAge',
+      addChild: 'addChild'
+    }),
     add() {
       let ind = this.arr.length
       this.id = Date.now()
@@ -40,31 +46,29 @@ export default {
     },
     onSubmit(e) {
       e.preventDefault()
-      console.log('person', this.person)
-      console.log('onSubmit')
+      console.log('onSubmit', this.person)
+      this.$store.commit('setName', this.person.name)
+      this.$store.commit('setAge', this.person.age)
+      this.$store.commit('addChild', [...this.person.childs])
     },
     onUpdateName(val) {
-      console.log('onUpdate', val)
       this.person.name = val.value
     },
     onUpdateAge(val) {
-      console.log('onUpdateAge', val)
       this.person.age = val.value
     },
     onUpdateChilds(val) {
-      //   console.log('onUpdateChilds', val)
-      let res = []
-      const ind = this.person.childs.filter((item) => item.id == val.id)
-      if (!ind.length) {
-        res.push(val)
-        this.person.childs = [...res]
-        console.log('childs', this.person.childs)
+      const isInList = this.person.childs.filter(item => item.id === val.id)
+      if (!isInList.length) {
+        this.person.childs.push(val)
       } else {
-        ind[0].push(val)
-        console.log('res 2', this.person.childs)
+        isInList[0] = {...isInList[0], ...val};
       }
-      //   this.person.childs.push(val)
-      //   console.log('childs', this.person.childs)
+    },
+    onDeleteChild(child) {
+      this.person.childs = this.person.childs.filter((el) => (
+          el.id !== child[0].id
+      ))
     }
   }
 }
@@ -90,6 +94,7 @@ export default {
         :elems="item"
         :id="id"
         @update-childs="onUpdateChilds"
+        @delete-child="onDeleteChild"
       />
     </fieldset>
     <button class="save" @submit="onSubmit">Сохранить</button>

@@ -13,52 +13,27 @@ export default {
   props: {
     elems: {
       type: Object,
-      default: () => {}
     },
     id: {
       type: Number,
-      default: () => 0
     }
   },
-  emits: ['updateChilds'],
+  emits: ['updateChilds', 'deleteChild'],
   methods: {
     onUpdateVal(val) {
       const name = val['value']
       const field = val['name']
-      console.log('this.child', this.child)
-
       let type = this.checkType(field)
 
-      for (let i = 0; i < this.child.length; i++) {
-        console.log('list', this.child[i])
-      }
-
-      if (this.child.length == 0) {
-        this.child.push({ id: this.id, [type]: name })
-        console.log(this.child)
+      const isInList = this.child.filter(item => item.id === this.id)
+      const res = { id: this.id, [type]: name }
+      if (!isInList.length) {
+        this.child.push(res)
       } else {
-        const isHere = this.child.filter((item) => item.id === val.id)
-        if (isHere) {
-          console.log('isHere', isHere)
-          isHere[type] = name
-        }
+        isInList[0][type] = name
       }
-
-      console.log('this.child', this.child)
-
-      //   console.log(ind)
-
-      //   if (!isInList.length) {
-      //     this.child.push({ id: this.id, [type]: name })
-      //     console.log('res', this.child)
-      //   } else {
-      //     isInList[0][type] = name
-      //     console.log(isInList[0])
-      //     console.log('res 2', this.child)
-      //   }
-
-      //   console.log('in row', this.child)
-      this.$emit('updateChilds', this.child)
+      console.log('child',this.child)
+      this.$emit('updateChilds', res)
     },
     checkType(type) {
       if (type === 'name') {
@@ -66,6 +41,10 @@ export default {
       } else {
         return 'age'
       }
+    },
+    onDelete() {
+      console.log('delete', this.child)
+      this.$emit('deleteChild', this.child)
     }
   }
 }
@@ -80,7 +59,7 @@ export default {
       :name="elem.name"
       @update-val="onUpdateVal"
     />
-    <button class="delete">Удалить</button>
+    <button class="delete" @click="onDelete">Удалить</button>
   </div>
 </template>
 <style lang="scss" scoped>
